@@ -1,0 +1,98 @@
+/*Crie um procedimento que mostre a soma da quantidade total de produtos pedidos */
+CREATE PROCEDURE EXEMPLO1
+AS
+SELECT SUM(QUANTIDADE) AS "TOTAL DE PEDIDOS"
+FROM ITEM_DO_PEDIDO
+
+EXECUTE EXEMPLO1
+
+/*Desenvolva um procedimento que retorne os pedidos que um determinado vendedor 
+participou.*/
+CREATE PROCEDURE EXEMPLO2
+@CODIGO INT 
+AS
+SELECT NUM_PEDIDO
+FROM PEDIDO
+WHERE CODIGO_VENDEDOR = @CODIGO;
+
+EXECUTE EXEMPLO2 720
+
+/*Desenvolva um procedimento que retorne pedidos que um determinado vendedor participou 
+e que o prazo de entrega seja igual ao valor passado por parâmetro*/
+CREATE PROCEDURE EXEMPLO3
+@CODIGO INT, @PRAZO INT
+AS
+SELECT NUM_PEDIDO, PRAZO_ENTREGA 
+FROM PEDIDO 
+WHERE CODIGO_VENDEDOR = @CODIGO AND PRAZO_ENTREGA = @PRAZO;
+
+EXECUTE EXEMPLO3 101, 20
+
+/*69 - Crie um procedimento que retorne todos os códigos, nomes e unidades dos produtos 
+cadastrados em que o valor unitário seja menor ao valor passado por parâmetro.*/
+CREATE PROCEDURE EX69
+@VAL NUMERIC(10, 2) 
+AS
+SELECT CODIGO_PRODUTO, DESCRICAO_PRODUTO, UNIDADE, VAL_UNIT
+FROM PRODUTO 
+WHERE VAL_UNIT < @VAL;
+
+EXECUTE EX69 2
+
+/*70 - Desenvolva um procedimento que retorne a soma de uma venda de um determinado 
+pedido.*/
+CREATE PROCEDURE EX70
+@PEDIDO INT
+AS
+SELECT SUM(IP.QUANTIDADE * PR.VAL_UNIT) AS "SOMA VENDA" 
+FROM PEDIDO P INNER JOIN ITEM_DO_PEDIDO IP ON P.NUM_PEDIDO = IP.NUM_PEDIDO INNER JOIN 
+		PRODUTO PR ON IP.CODIGO_PRODUTO = PR.CODIGO_PRODUTO 
+WHERE P.NUM_PEDIDO = @PEDIDO
+
+EXECUTE EX70 91
+
+/*71 - Desenvolva um procedimento que mostre descrição do produto, a 
+quantidade de produtos vendidos, o Preço Unitário e o total 
+(quantidade*Preço Unitário) de um determinado Pedido.*/
+CREATE PROCEDURE EX71
+@PEDIDO INT
+AS
+SELECT PR.DESCRICAO_PRODUTO, IP.QUANTIDADE, PR.VAL_UNIT, IP.QUANTIDADE * PR.VAL_UNIT
+		AS "TOTAL" 
+FROM ITEM_DO_PEDIDO IP INNER JOIN PRODUTO PR 
+		ON IP.CODIGO_PRODUTO = PR.CODIGO_PRODUTO 
+WHERE IP.NUM_PEDIDO = @PEDIDO
+
+EXECUTE EX71 111
+
+/*72 - Faça um procedimento que retorne a soma total dos pedidos de cada vendedor.*/
+CREATE PROCEDURE EX72
+AS
+SELECT V.CODIGO_VENDEDOR, V.NOME_VENDEDOR, SUM(IP.QUANTIDADE * PR.VAL_UNIT)
+		AS "TOTAL PEDIDOS" 
+FROM VENDEDOR V INNER JOIN PEDIDO P ON V.CODIGO_VENDEDOR = P.CODIGO_VENDEDOR 
+		INNER JOIN ITEM_DO_PEDIDO IP ON P.NUM_PEDIDO = IP.NUM_PEDIDO 
+		INNER JOIN PRODUTO PR ON IP.CODIGO_PRODUTO = PR.CODIGO_PRODUTO 
+GROUP BY V.CODIGO_VENDEDOR, V.NOME_VENDEDOR
+
+EXECUTE EX72 
+
+/*73 - Faça um procedimento que retorne o código e o nome dos clientes, cujo 
+código do vendedor, o estado que reside o cliente e o prazo de entrega do pedido 
+seja passado por parâmetro.
+Sugestão de Parâmetros: código do vendedor - 101, estado - RJ e prazo entrega - 20*/
+CREATE PROCEDURE EX73
+@CODVEND INT,
+@UF CHAR(2),
+@PRAZO INT
+AS
+SELECT C.CODIGO_CLIENTE, C.NOME_CLIENTE, P.CODIGO_VENDEDOR, C.UF, P.PRAZO_ENTREGA
+FROM CLIENTE C INNER JOIN PEDIDO P ON C.CODIGO_CLIENTE = P.CODIGO_CLIENTE 
+WHERE P.CODIGO_VENDEDOR = @CODVEND AND
+	  C.UF = @UF AND
+	  P.PRAZO_ENTREGA = @PRAZO
+
+EXECUTE EX73 101, 'RJ', 20
+
+
+

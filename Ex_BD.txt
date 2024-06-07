@@ -1,0 +1,16 @@
+select *
+from cliente
+
+select  sum(F.impostos) as "Total imposto", C.regiao
+from funcionario F inner join cep C on F.cep = C.cep
+group by C.regiao 
+
+select SUM(F.salario_base) as "Total salário base", N.descricao_nivel
+from funcionario F inner join cargo C on F.cod_cargo = C.cod_cargo 
+		inner join nivel N on C.cod_nivel = N.cod_nivel
+group by N.descricao_nivel
+
+select sum(salario_base) as "Soma salário base", sum(salario_base + impostos + beneficios + vt + vr) as "Salário total", 
+		sum(dias_uteis_trabalhados_ano_orcamentario) as "Total dias trabalhados", cod_cargo
+from funcionario
+group by cod_cargo

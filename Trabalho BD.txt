@@ -1,0 +1,114 @@
+--1.Crie uma view para selecionar todos os dados do Nível, Cargo, Cliente e Região.
+Create view ex1
+As
+Select C.*, N.*, CE.regiao, CA.area, CA.cod_area, CA.quadro, CA.bonus, CA.contratacao
+from nivel N full join cargo CA on N.cod_nivel = CA.cod_nivel full join cliente C  
+	 on CA.cod_cargo = C.cod_cargo_responsavel inner join cep CE on C.cep = CE.cep
+
+--2.Elabora uma view que mostre a quantidade de clientes em cada Região
+Create view ex2
+As
+Select COUNT(C.cod_cliente) as 'Quantidade cliente por região', CE.regiao 
+From cliente C inner join cep CE on C.cep = CE.cep
+Group by CE.regiao
+
+select * from ex2
+
+--3.Elabora uma view que mostre a soma do salário base, benefícios, vt, vre de 
+--impostos por nível.
+Create view ex3
+As
+Select SUM(F.salario_base + F.beneficios + F.vt + F.vr + F.impostos) as 'Soma', N.descricao_nivel
+From nivel N inner join cargo C on N.cod_nivel = C.cod_nivel inner join 
+		funcionario F on C.cod_cargo = F.cod_cargo
+Group by N.descricao_nivel
+
+select * from ex3
+
+
+--4.Elabora uma view que mostre a quantidade de Funcionáriospara cada: 
+--a.Estado
+Create view ex4A
+As
+Select COUNT(F.cod_rh) as 'Quantidade funcionários por estado', C.estado
+From funcionario F inner join cep C on F.cep = C.cep
+Group by C.estado
+
+--b.Contratação
+Create view ex4B
+As
+Select COUNT(F.cod_rh) as 'Quantidade funcionários por contratação', CA.contratacao
+From funcionario F inner join cargo CA on F.cod_cargo = CA.cod_cargo
+Group by CA.contratacao
+
+--5.Elaboraruma view que mostre a quantidade de Clientes para cada: 
+--a.Região
+Create view ex5A
+As
+Select COUNT(C.cod_cliente) as 'Quantidade cliente por região', CE.regiao
+From cliente C inner join cep CE on C.cep = CE.cep
+Group by CE.regiao
+
+--b.Área 
+Create view ex5B
+As
+Select COUNT(C.cod_cliente) as 'Quantidade cliente por área', CA.area
+From cliente C inner join cargo CA on C.cod_cargo_responsavel = CA.cod_cargo
+Group by CA.area
+
+--c.Descrição Nível
+Create view ex5C
+As
+Select COUNT(C.cod_cliente) as 'Quantidade cliente pela descrição do nível', N.descricao_nivel
+From cliente C inner join cargo CA on C.cod_cargo_responsavel = CA.cod_cargo inner join
+		nivel N on CA.cod_nivel = N.cod_nivel
+Group by N.descricao_nivel
+
+--6.Elabora uma view que mostre o total do valor de contrato anual do cliente por 
+--descrição nível. 
+Create view ex6
+As
+Select SUM(C.valor_contrato_anual) as 'Valor contrato anual por descrição de nível', N.descricao_nivel
+From cliente C inner join cargo CA on C.cod_cargo_responsavel = CA.cod_cargo inner join
+		nivel N on CA.cod_nivel = N.cod_nivel
+Group by N.descricao_nivel
+
+--7.Faça uma view mostre todos os dados dos níveis, cargos e funcionários e calculeSalário 
+--Total = SalárioBase+Impostos+Benefícios+VT+VR) 
+Create view ex7
+As
+Select F.*, C.area, C.quadro, C.bonus, C.contratacao, N.*, (F.salario_base + 
+		F.beneficios + F.vt + F.vr + F.impostos) as 'Total'
+From funcionario F inner join cargo C on F.cod_cargo = C.cod_cargo inner join 
+		nivel N on C.cod_nivel = N.cod_nivel
+
+select * from ex7
+
+--8.Faça uma view mostre: 
+--Somado Salário Base
+--Soma do Salário Total = SalárioBase+Impostos+Benefícios+VT+VR
+--Soma do Total de Dias Trabalhados = soma (Dias ÚteisTrabalhados Ano Orçamentário)
+
+--a.Para cada cargo
+Create view ex8A
+As
+Select SUM(salario_base) as 'Soma salário base', SUM(Total) as 'Soma salário total', 
+		SUM(dias_uteis_trabalhados_ano_orcamentario) as 'Soma do total de dias trabalhados', cod_cargo
+From ex7
+Group by cod_cargo
+
+--b.Para cada região
+Create view ex8B
+As
+Select SUM(E.salario_base) as 'Soma salário base', SUM(E.Total) as 'Soma salário total', 
+		SUM(E.dias_uteis_trabalhados_ano_orcamentario) as 'Soma do total de dias trabalhados', C.regiao
+From ex7 E inner join cep C on E.cep = C.cep
+Group by C.regiao
+
+--c.Para cada descrição do nível
+Create view ex8C
+As
+Select SUM(salario_base) as 'Soma salário base', SUM(Total) as 'Soma salário total', 
+		SUM(dias_uteis_trabalhados_ano_orcamentario) as 'Soma do total de dias trabalhados', descricao_nivel
+From ex7
+Group by descricao_nivel
